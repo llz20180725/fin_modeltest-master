@@ -18,15 +18,15 @@ def eval_application(args):
 
     # 载入评测集
     dataset = load_dataset(args.eval_type)
-
+    dataset = dataset[dataset["sub_task"]==args.sub_task]
     # 大模型推理回答&记录答案
     responses = []
 
     for _, record in tqdm(dataset.iterrows()):
-        if record['sub_task'] == "金融英中翻译":
+        if record['task'] == "金融翻译":
             prompt = record['instruction'].split('\n')[0]
 
-            input = record['instruction'].split('\n')[1:]
+            input = record['instruction'].split('\n')[2]
             if  record['sub_task'] == "金融英中翻译":
                 input = record['instruction'].split('\n')[2]
             try:
@@ -54,7 +54,7 @@ def eval_application(args):
 
     if not args.save_result_dir:
         os.makedirs(args.save_result_dir, exist_ok=True)
-    dataset = dataset[dataset["sub_task"]=="金融英中翻译"]
+
     dataset["model_response"] = responses
 
     dataset.to_json(result_path, orient='records', force_ascii=False)
